@@ -11,7 +11,7 @@ y_ <- log_iga
 hist(y_)#sim?trica com valores at?picos na calda esquerda
 summary(y_)#? sim?trica, pois mediana pr?ximo da m?dia
 x1 <- imc
-x2 <- cat_vacuna
+x2 <- as.factor(cat_vacuna)
 x3 <- log_neutra
 x4 <- edad
 
@@ -172,31 +172,32 @@ abline(h=3,lwd=4,lty=2,col="1")
 #identify(index,Res.q2)
 
 #__________Envelope simulado 
-B <-500#numero de simulacoes
-n<- length(y_)
-j<-1
-iter<-0
+B <- 500  # Número de simulaciones
+n <- length(y_)
+j <- 1
+iter <- 0
 Res.q <- tStudent_inversa$residuals
 Res.qo <- sort(Res.q)
 
-# simula??es  
+# Simulaciones
 set.seed(123)
 mrq <- matrix(0, B, n)
-while (j<B+1) 
-{
-  simula <- rTF(n, fitted(tStudent_inversa))#a simulacao a partir da funcao que gera a partir das matrizes da estimativas
+
+while (j < B + 1) {
+  simula <- rTF(n, fitted(tStudent_inversa))
   
-  m1s <- try(gamlss(simula~x1+x2+x3+cs(x4),
-                    family=TF(mu.link = inverse,sigma.link = log),
-                    data=dados1,n.cyc=1000, trace=TRUE))
+  # Intenta ajustar el modelo, captura cualquier error
+  m1s <- try(gamlss(simula ~ x1 + x2 + x3 + cs(x4),
+                    family = TF(mu.link = inverse, sigma.link = log),
+                    data = dados1, n.cyc = 1000, trace = TRUE), silent = TRUE)
   
-  if((class(m1s)!="try-error")==T){
-    
+  # Verifica si la asignación fue exitosa y si hay un objeto válido
+  if (!inherits(m1s, "try-error")) {
     Res.qs <- m1s$residuals
-    mrq[j,] <- Res.qs
-    j<-j+1
+    mrq[j, ] <- Res.qs
+    j <- j + 1
   }
-  cat("iteration=",iter<-iter+1,j,"\n")
+  cat("iteration =", iter <- iter + 1, ", j =", j, "\n")
 }
 
 mrq2 <- t(apply(mrq, 1, sort))

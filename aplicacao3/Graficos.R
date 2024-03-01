@@ -5,9 +5,7 @@ library(gridExtra)
 library(gamlss)
 dados <- datos
 y <- y_
-dados$Forested<- as.factor(dados$Forested)
-dados$FieldpH<- as.numeric(dados$FieldpH)
-dados$Temperature<- as.numeric(dados$Temperature)
+
 
 v1 <- ggplot(dados, aes(x = y_)) +  # Agrega aes() alrededor de y_
   geom_histogram(bins = 11, aes(y = ..density..), fill = "steelblue") +
@@ -23,7 +21,9 @@ v1 <- ggplot(dados, aes(x = y_)) +  # Agrega aes() alrededor de y_
     col = "black",
     size = 1
   ) +
-  xlim(c(3, 11))
+  xlim(c(3, 11)) +
+  xlab("Log IGG")
+
 
 v1
 
@@ -34,9 +34,10 @@ v2 <- ggplot(dados, aes(x2, y_)) +
     axis.text.y = element_text(size = 16, face = "plain"),  
     axis.title.x = element_text(size = 20, face = "plain"),
     axis.title.y = element_text(size = 20, face = "plain")
-  )
+  )+
+  xlab("Categoria Vacuna")
 
-v3 <- ggplot(dados, aes(x2, y_)) +
+v3 <- ggplot(dados, aes(x1, y_)) +
   geom_point(size = 3) +
   geom_smooth(se = FALSE, aes(group = 1), col = "red", size = 2) +  # Agrega aes(group = 1)
   theme(
@@ -44,7 +45,8 @@ v3 <- ggplot(dados, aes(x2, y_)) +
     axis.text.y = element_text(size = 16, face = "plain"),  
     axis.title.x = element_text(size = 20, face = "plain"),
     axis.title.y = element_text(size = 20, face = "plain")
-  )
+  ) +
+  xlab("IMC")
 
 v4 <- ggplot(dados, aes(x3, y_)) +
   geom_point(size = 3) +
@@ -54,7 +56,8 @@ v4 <- ggplot(dados, aes(x3, y_)) +
     axis.text.y = element_text(size = 16, face = "plain"),  
     axis.title.x = element_text(size = 20, face = "plain"),
     axis.title.y = element_text(size = 20, face = "plain")
-  )
+  ) +
+  xlab("Log Neutra")
 
 v5 <- ggplot(dados, aes(x4, y_)) +
   geom_point(size = 3) +
@@ -65,7 +68,6 @@ v5 <- ggplot(dados, aes(x4, y_)) +
     axis.title.x = element_text(size = 20, face = "plain"),
     axis.title.y = element_text(size = 20, face = "plain")
   ) +
-  xlab("Days")
+  xlab("Edad")
 
 grid.arrange(v2, v3, v5, v4)
-
