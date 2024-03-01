@@ -1,0 +1,145 @@
+---
+title: "Relatorio ph Irland"
+author: "Cristian Villegas"
+date: "2023-06-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r}
+rm(list=ls())
+load("Aplicacao3.RData")
+library(ggplot2)
+library(gridExtra)
+library(gamlss)
+dados<- dados1
+dados$pH<- as.numeric(dados$pH)
+dados$Forested<- as.factor(dados$Forested)
+dados$FieldpH<- as.numeric(dados$FieldpH)
+dados$Temperature<- as.numeric(dados$Temperature)
+
+v1<- ggplot(dados, aes(pH))+
+  geom_histogram(bins=11,aes(y=..density..),fill="steelblue")+
+  theme(axis.text.x = element_text(size = 16, face = "plain"),
+        axis.text.y = element_text(size = 16, face = "plain"),  
+        axis.title.x = element_text(size = 20, face = "plain"),
+        axis.title.y = element_text(size = 20, face = "plain"))+
+  stat_function(fun=dNO,
+                args = list(mu=mean(dados$pH), 
+                            sigma=sd(dados$pH)),
+                col="black", size=1)+xlim(c(3,11))
+v1
+
+v2<- ggplot(dados, aes(Forested,pH))+
+  geom_boxplot(fill="steelblue")+
+  theme(axis.text.x = element_text(size = 16, face = "plain"),
+        axis.text.y = element_text(size = 16, face = "plain"),  
+        axis.title.x = element_text(size = 20, face = "plain"),
+        axis.title.y = element_text(size = 20, face = "plain"))
+
+v3<- ggplot(dados, aes(FieldpH,pH))+
+  geom_point(size=3)+
+  geom_smooth(se=FALSE,col="red", size=2)+
+  theme(axis.text.x = element_text(size = 16, face = "plain"),
+        axis.text.y = element_text(size = 16, face = "plain"),  
+        axis.title.x = element_text(size = 20, face = "plain"),
+        axis.title.y = element_text(size = 20, face = "plain"))
+
+v4<- ggplot(dados, aes(Temperature,pH))+
+  geom_point(size=3)+
+  geom_smooth(se = FALSE,col="red", size=2)+
+  theme(axis.text.x = element_text(size = 16, face = "plain"),
+        axis.text.y = element_text(size = 16, face = "plain"),  
+        axis.title.x = element_text(size = 20, face = "plain"),
+        axis.title.y = element_text(size = 20, face = "plain"))
+
+v5<- ggplot(dados, aes(Date2,pH))+
+  geom_point(size=3)+
+  geom_smooth(se = FALSE,col="red", size=2, method = "lm")+
+  theme(axis.text.x = element_text(size = 16, face = "plain"),
+        axis.text.y = element_text(size = 16, face = "plain"),  
+        axis.title.x = element_text(size = 20, face = "plain"),
+        axis.title.y = element_text(size = 20, face = "plain"))+
+  xlab("Days")
+grid.arrange(v2,v3,v5,v4)
+
+
+
+GAIC(Normal_identidade,
+     tStudent_identidade,
+     Exponencial_potencia_identidade,
+     Normal_inversa,
+     tStudent_inversa,
+     Exponencial_potencia_inversa,
+     Normal_log,
+     tStudent_log,
+     Exponencial_potencia_log,
+     Normal_sqrt,
+     tStudent_sqrt,
+     Exponencial_potencia_sqrt)
+
+wp(tStudent_inversa,ylim.all = 3)
+
+summary(tStudent_sqrt)
+
+exp(tStudent_inversa$nu.coefficients)
+
+#x11()
+term.plot(tStudent_inversa, 
+          what = c("mu"),
+          terms = 4,main="",
+          col.shaded="royalblue",
+          col.term = "gray83",
+          xlabs="temperature",col.se="black",
+          ylabs="Partial for cs(temperature)",
+          lwd.term = 4,
+          lwd.se=2,
+          lty.se = 1)
+#____________________________________________________________________
+#Tendencias y vs x's 
+
+#y vs x2
+#x11()
+plot(x4,y_,pch=19,main="",col="royalblue4",
+     xlab="Measured height",
+     ylab="Measured weight")
+lines(smooth.spline(x4,fitted(tStudent_inversa)),
+     type="l",col="red",lwd=4)
+
+
+#____________________________________________________________
+#           Qualidade de ajuste da dist. t-Student,
+#justificativa para dizer que a dist. t-Student n?o 
+#ajustou-se bem aos dados
+
+
+plot(Res.q2,pch=1,col="red2",lwd=4,
+     ylab="Quantile residuals",xlab="Index",
+     main ="",ylim = c(-5,5),cex.lab=1.2)
+abline(h=-3,lwd=4,lty=2,col="1")
+abline(h=0,lwd=2,lty=1,col="4")
+abline(h=3,lwd=4,lty=2,col="1")
+#identify(index,Res.q2)
+
+
+qqnorm(Res.qo,pch=19,col="red2",
+       xlim=c(-3,3),
+       ylim=c(-4,4),
+       ylab="Quantile residuals",
+       xlab="N(0,1) quantiles",main = "",cex.lab=1.2)
+lines(Z,rqmax,col="1",lwd=3)
+lines(Z,rqm , lty = 2,col="4",lwd=3)
+lines(Z,rqmin,col="1",lwd=3)
+legend("topleft", c(paste("Total points:", n),
+       paste("Points out of envelope:",
+       res.out , "(", per.out, "%)")),
+       bty="n", cex=1.2)
+
+
+```
+
