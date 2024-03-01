@@ -1,17 +1,19 @@
-rm(list=ls())
-library(readxl)
-library(gamlss)#chamando o pacote gamlss
+# rm(list=ls())
+# library(readxl)
+# library(gamlss)#chamando o pacote gamlss
 #setwd("C:/Users/Julio Cezar/Desktop/codigos_do_artigo_MLPGS/Codigos_anteriores/Aplicacao_dados_Novos")
-dados1<-read_excel("SDI2003.xlsx",1)# para chamar os dados obs: 1 ? primeira aba do excel
+dados1 <- datos
 attach(dados1)
 
-y_<-as.numeric(pH)
+# y_<-as.numeric(pH)
+y_ <- log_iga
+# eliminar na
 hist(y_)#sim?trica com valores at?picos na calda esquerda
 summary(y_)#? sim?trica, pois mediana pr?ximo da m?dia
-x1<-Date2
-x2<-as.factor(Forested)
-x3<-as.numeric(FieldpH)
-x4<-as.numeric(Temperature)
+x1 <- imc
+x2 <- cat_vacuna
+x3 <- log_neutra
+x4 <- edad
 
 plot(x1,y_)
 plot(x2,y_)
@@ -26,6 +28,7 @@ kurtosis(y_)
 length(y_)
 
 #___Fun??o de liga??o identidade na posi??o (mu)
+library(gamlss)
 
 #______________Normal_________________________
 Normal_identidade<- gamlss(y_~x1+x2+x3+cs(x4),
@@ -121,7 +124,7 @@ GAIC(Normal_identidade,
 
 wp(tStudent_inversa,ylim.all = 3)
 
-summary(tStudent_sqrt)
+summary(tStudent_log)
 
 exp(tStudent_inversa$nu.coefficients)
 
@@ -131,8 +134,8 @@ term.plot(tStudent_inversa,
           terms = 4,main="",
           col.shaded="royalblue",
           col.term = "gray83",
-          xlabs="temperature",col.se="black",
-          ylabs="Partial for cs(temperature)",
+          xlabs="Edad",col.se="black",
+          ylabs="Partial for cs(edad)",
           lwd.term = 4,
           lwd.se=2,
           lty.se = 1)
@@ -157,7 +160,7 @@ lines(smooth.spline(x4,fitted(tStudent_inversa)),
 Res.q2 <- tStudent_inversa$residuals
 Res.qo2 <- sort(abs(Res.q2))
 
-index <- 1:length(dados1$pH)
+index <- 1:length(dados1$log_iga)
 
 #x11()
 plot(Res.q2,pch=1,col="red2",lwd=4,
@@ -222,4 +225,4 @@ legend("topleft", c(paste("Total points:", n),
        bty="n", cex=1.2)
 
 
-save.image("Aplicacao3.RData")
+save.image("Aplicacion_thomas_javier_log_iga.RData")
