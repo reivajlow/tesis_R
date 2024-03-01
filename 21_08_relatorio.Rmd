@@ -1,0 +1,482 @@
+---
+title: "Relatório Julio"
+author: "Cristian Villegas"
+date: "22/08/2019"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+  pdf_document: 
+    fig_crop: no
+    number_sections: yes
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      error = TRUE, 
+                      message = FALSE,
+                      comment=" ")
+library(readxl)
+library(gamlss)
+library(ggplot2)
+library(gridExtra)
+library(lattice)
+```
+
+```{r, eval=FALSE}
+# Leitura de dados: Application 
+rm(list=ls())
+dados<-read_excel("dados_Deoclecio.xlsx",1)
+dados$TRAT<- as.factor(dados$TRAT)
+dados$TEMPO<- as.factor(dados$TEMPO)
+load("ajuste.RData")
+
+
+# Gráficos descritivos
+#geom_histogram(bins=10,col="red")+
+ggplot(dados, aes(CR))+
+  stat_density(col="red", fill="white")+
+  stat_function(fun=dNO,
+                args = list(mu=mean(dados$CR), 
+                        sigma=sd(dados$CR)),col="blue", size=4)+xlim(c(0,14))
+
+ggplot(dados, aes(CR))+
+  stat_density(col="red", fill="white")+
+  stat_function(fun=dTF,
+                args = list(mu=mean(dados$CR), 
+                        sigma=sd(dados$CR),
+                        nu=6),col="blue", size=4)+xlim(c(0,14))
+
+ggplot(dados, aes(CR))+
+  stat_density(col="red", fill="white")+
+  stat_function(fun=dPE,
+                args = list(mu=mean(dados$CR), 
+                        sigma=sd(dados$CR),
+                        nu=2),col="blue", size=1)+xlim(c(0,14))+stat_function(fun=dNO,
+                args = list(mu=mean(dados$CR), 
+                        sigma=sd(dados$CR)),col="black", size=1)
+
+summary(dados$CR)
+
+
+# Gráficos descritivos
+v1<- ggplot(dados, aes(CPA, CR))+ geom_point()+
+  geom_smooth()#+facet_wrap(~TRAT)
+v2<- ggplot(dados, aes(log(MSR), CR))+geom_point()+
+  geom_smooth(method="lm")
+v3<- ggplot(dados, aes(log(MSA), CR))+geom_point()+
+  geom_smooth(method="lm")
+v4<- ggplot(dados, aes(AF, CR))+geom_point()+
+  geom_smooth()
+grid.arrange(v1, v2, v3, v4)
+
+
+v5<- ggplot(dados, aes(CPA, CR))+ geom_point()+
+  geom_smooth()
+v6<- ggplot(dados, aes(MSR, CR))+geom_point()+
+  geom_smooth()
+v7<- ggplot(dados, aes(MSA, CR))+geom_point()+
+  geom_smooth()
+v8<- ggplot(dados, aes(AF, CR))+geom_point()+
+  geom_smooth()
+grid.arrange(v5, v6, v7, v8)
+
+# Ajuste de modelos
+## Modelo Normal
+#```{r, eval=FALSE}
+Normal_identidade<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=NO(mu.link ="identity"),
+data=dados,n.cyc=1000, trace=FALSE)
+
+
+Normal_inversa<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=NO(mu.link = inverse),
+data=dados,n.cyc=1000, trace=FALSE)
+
+
+Normal_log<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=NO(mu.link = log),
+data=dados,n.cyc=1000, trace=FALSE)
+
+
+Normal_sqrt<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=NO(mu.link = "sqrt"),
+data=dados,n.cyc=1000, trace=FALSE)
+
+
+
+## Modelo t-Student
+#```{r, eval=FALSE}
+tStudent_identidade<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=TF(mu.link = "identity"),data=dados,n.cyc=1000, trace=FALSE)
+
+tStudent_inversa<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=TF(mu.link = inverse),data=dados,n.cyc=1000, trace=FALSE)
+
+tStudent_log<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=TF(mu.link = log),
+data=dados,n.cyc=1000, trace=FALSE)
+
+tStudent_sqrt<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=TF(mu.link = "sqrt"),data=dados,n.cyc=1000, trace=FALSE)
+
+
+## Exponencial potencia
+#```{r, eval=FALSE}
+Exponencial_potencia_identidade<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=PE(mu.link = "identity", sigma.link = "identity"),
+nu.start=10,data=dados,n.cyc=10000, trace=TRUE)
+#save.image("ajuste4.RData")
+
+Exponencial_potencia_inversa<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=PE(mu.link = inverse, sigma.link = "identity"),nu.start=10,data=dados,n.cyc=10000,trace=TRUE)
+
+Exponencial_potencia_log<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=PE(mu.link = log, sigma.link = "identity"),
+nu.start=1,data=dados,n.cyc=10000,trace=TRUE)
+
+Exponencial_potencia_sqrt<- gamlss(CR~TEMPO+TRAT+MSR+MSA+cs(CPA),
+family=PE(mu.link ="sqrt", sigma.link = "identity"),
+nu.start=1,data=dados,n.cyc=10000,trace=TRUE)
+
+ 
+#wp(Normal_log)
+#summary(Normal_inversa)
+#paste("df=",round(sum(getSmo(Normal_inversa)$lev),4))#df é são os graus de liberdade efetivos, ou seja, o grau do polinômio de cada partição da curva
+
+
+# Resumo e Worm plot
+## Modelo Normal
+
+par(mfrow=c(1,1))
+summary(Normal_identidade)
+wp(Normal_identidade,ylim.all=3)
+
+summary(Normal_inversa)
+wp(Normal_inversa,ylim.all=3)
+
+summary(Normal_log)
+wp(Normal_log,ylim.all=3)
+
+summary(Normal_sqrt)
+wp(Normal_sqrt,ylim.all=3)
+
+
+## Modelo t-Student
+
+summary(tStudent_identidade)
+wp(tStudent_identidade,ylim.all=3)
+
+summary(tStudent_inversa)
+wp(tStudent_inversa,ylim.all=3)
+
+summary(tStudent_log)
+wp(tStudent_log,ylim.all=3)
+
+summary(tStudent_sqrt)
+wp(tStudent_sqrt,ylim.all=3)
+
+
+## Estimativas modelo Student
+
+tStudent_identidade$mu.coefficients
+exp(tStudent_identidade$sigma.coefficients)
+exp(tStudent_identidade$nu.coefficients)
+
+tStudent_inversa$mu.coefficients
+exp(tStudent_inversa$sigma.coefficients)
+exp(tStudent_inversa$nu.coefficients)
+
+tStudent_log$mu.coefficients
+exp(tStudent_log$sigma.coefficients)
+exp(tStudent_log$nu.coefficients)
+
+tStudent_sqrt$mu.coefficients
+exp(tStudent_sqrt$sigma.coefficients)
+exp(tStudent_sqrt$nu.coefficients)
+
+## Modelo Exponencial Potência
+
+summary(Exponencial_potencia_identidade)
+wp(Exponencial_potencia_identidade,ylim.all=3)
+
+summary(Exponencial_potencia_inversa)
+wp(Exponencial_potencia_inversa,ylim.all=3)
+
+summary(Exponencial_potencia_log)
+wp(Exponencial_potencia_log,ylim.all=3)
+
+summary(Exponencial_potencia_sqrt)
+wp(Exponencial_potencia_sqrt,ylim.all=3)
+
+## Estimativas modelo EP
+Exponencial_potencia_identidade$mu.coefficients
+exp(Exponencial_potencia_identidade$sigma.coefficients)
+exp(Exponencial_potencia_identidade$nu.coefficients)
+
+Exponencial_potencia_inversa$mu.coefficients
+exp(Exponencial_potencia_inversa$sigma.coefficients)
+exp(Exponencial_potencia_inversa$nu.coefficients)
+
+Exponencial_potencia_log$mu.coefficients
+exp(Exponencial_potencia_log$sigma.coefficients)
+exp(Exponencial_potencia_log$nu.coefficients)
+
+Exponencial_potencia_sqrt$mu.coefficients
+exp(Exponencial_potencia_sqrt$sigma.coefficients)
+exp(Exponencial_potencia_sqrt$nu.coefficients)
+
+#    Seleção de modelos GAIC
+GAIC(Normal_identidade,
+     Normal_inversa,
+     Normal_log,
+     Normal_sqrt,
+     tStudent_identidade,
+     tStudent_inversa,
+     tStudent_log,
+     tStudent_sqrt,
+     Exponencial_potencia_identidade,
+     Exponencial_potencia_inversa,
+     Exponencial_potencia_log,
+     Exponencial_potencia_sqrt)
+
+#save.image("ajuste.RData")
+
+
+#```{r, eval=FALSE, echo=FALSE}
+plot(CPA,CR,pch=19,main="",col="royalblue4",
+     xlab="IPSA",
+     ylab="Profitability da AFP Cuprum")#y vs t
+lines(smooth.spline(CPA,CR),
+      type="l",col="red",lwd=4)
+
+#Gráfico para ver se o modelo ajustou o conjunto
+#de dados, quanto menor (ou seja quanto mais 
+#proximo a curva dos valores preditos (y^) a 
+#região de confiança a) melhor.
+#Modelo Normal inversa
+ 
+term.plot(Normal_inversa, 
+          what = c("mu"),
+          terms = 5,main="",
+          col.shaded="mediumorchid4",
+          col.term = "gray83",
+          xlabs="time",col.se="black",
+          ylabs="Partial for cs(time)",
+          lwd.term = 4,
+          lwd.se=2,
+          lty.se = 1)
+
+
+#__________________________________________________________
+#  Análise de residuos (verificando a qualidade do ajuste)
+
+#_______Gráfico dos resíduos vs indices 
+Res.q1 <- Normal_inversa$residuals
+Res.qo1 <- sort(abs(Res.q1))
+
+ 
+plot(Res.q1,pch=1,col="dodgerblue",lwd=4,
+     ylab="Quantile residuals",xlab="Index",
+     main ="",ylim = c(-5,5),cex.lab=1.2)
+abline(h=-3,lwd=4,lty=2,col="1")
+abline(h=0,lwd=2,lty=1,col="2")
+abline(h=3,lwd=4,lty=2,col="1")
+
+
+#__________Envelope simulado 
+B <-100#numero de simulacoes
+n<- length(CR)
+j<-1
+iter<-0
+Res.q <- Normal_inversa$residuals
+Res.qo <- sort(Res.q)
+
+# simulações  
+set.seed(123)
+mrq <- matrix(0, B, n)
+while (j<B+1) 
+{
+  simula <- rNO(n, fitted(Normal_inversa))#a simulacao a partir da funcao que gera a partir das matrizes da estimativas
+  
+  m1s <- try(gamlss(simula~TEMPO+TRAT+log(MSR)+log(MSA)+cs(CPA),
+                    family=NO(mu.link = inverse,sigma.link = "log"),
+                    data=dados,n.cyc=1000, trace=FALSE))
+  
+  if((class(m1s)!="try-error")==T){
+    
+    Res.qs <- m1s$residuals
+    mrq[j,] <- Res.qs
+    j<-j+1
+  }
+  cat("iteration=",iter<-iter+1,j,"\n")
+}
+
+mrq2 <- t(apply(mrq, 1, sort))
+Z <- qnorm((1:n - 3/8) / (n + 1/4))
+rqm <- apply(mrq2, 2, mean)
+rqmin <- apply(mrq2, 2, min)
+rqmax <- apply(mrq2, 2, max)
+mrq3 <- cbind(Z, Res.qo, rqmin, rqm, rqmax)
+
+(res.out <- sum(c(sum(Res.qo>=rqmax),sum(Res.qo<=rqmin))))
+(per.out <- round(res.out/n*100,2))
+
+
+ 
+qqnorm(Res.qo,pch=19,col="dodgerblue",
+       xlim=c(-3,3),
+       ylim=c(-3,3),
+       ylab="Quantile residuals",
+       xlab="N(0,1) quantiles",main = "",cex.lab=1.2)
+lines(Z,rqmax,col="1",lwd=3)
+lines(Z,rqm , lty = 2,col="2",lwd=3)
+lines(Z,rqmin,col="1",lwd=3)
+legend("topleft", c(paste("Total points:", n),
+                    paste("Points out of envelope:",
+                    res.out , "(", per.out, "%)")),
+                    bty="n", cex=1.2)
+
+#```{r, eval=FALSE, echo=FALSE}
+par(mfrow=c(2,2))
+plot(dados$CR~I(1/sqrt(dados$CPA)),pch=20,lwd=4,
+     col=dados$TRAT)
+lines(smooth.spline(dados$CR~I(1/sqrt(dados$CPA))),
+      type="l",col="red",lwd=4)
+abline(lm(dados$CR~I(1/sqrt(dados$CPA))),
+       col="blue",lwd=3)
+
+
+plot(dados$CR~log(dados$MSR),pch=20,lwd=4,
+     col=dados$TRAT)
+lines(smooth.spline(dados$CR~log(dados$MSR)),
+      type="l",col="red",lwd=4)
+abline(lm(dados$CR~log(dados$MSR)),
+       col="blue",lwd=3)
+
+
+plot(dados$CR~log(dados$MSA),pch=20,lwd=4,
+     col=dados$TRAT)
+lines(smooth.spline(dados$CR~log(dados$MSA)),
+      type="l",col="red",lwd=4)
+abline(lm(dados$CR~log(dados$MSA)),
+       col="blue",lwd=3)
+
+
+plot(dados$CR~log(dados$AF),pch=20,lwd=4,
+     col=dados$TRAT)
+lines(smooth.spline(dados$CR~log(dados$AF)),
+      type="l",col="red",lwd=4)
+abline(lm(dados$CR~log(dados$AF)),
+       col="blue",lwd=3)
+
+# attach(dados)
+# str(dados)
+# hist(CR)
+# summary(CR)
+# require(e1071)
+# sd(CR)
+# skewness(CR)
+# kurtosis(CR)
+# length(CR)
+#CR=COMPRIMENTO DA RAIZ
+# plot(TRAT,CR)#TRAT
+# plot(TEMPO,CR)#TEMPO DE COLETA
+# plot(CPA,CR)#COMPRIMENTO DA PARTE AEREA
+# 
+# plot(MSR,CR)#MASSA SECA DA RAIZ
+# plot(MSA,CR)#MASSA SECA DA PARTE AEREA
+# plot(AF,CR)#AREA FOLHA
+
+#```{r, echo=FALSE, eval=FALSE}
+# tStudent_identidade$mu.df
+# tStudent_identidade$sigma.df
+# tStudent_identidade$nu.df
+# tStudent_identidade$df.fit
+# 
+# tStudent_identidade$mu.fv
+# tStudent_identidade$mu.coefSmo
+# tStudent_identidade$mu.lambda
+# tStudent_identidade$mu.s
+```
+
+
+# First Application
+
+```{r}
+rm(list=ls())
+dados<-read_excel("dados.xlsx",1)
+
+
+q1<- mean(dados$y)-3*sd(dados$y)
+q2<- mean(dados$y)+3*sd(dados$y)
+v1<-ggplot(dados, aes(x = y)) + 
+    geom_histogram(aes(y =..density..),
+    bins = 10,colour = "black", fill = "white") +
+  #xlim(c(q1,q2))+
+  stat_function(fun = dnorm, args = list(mean = mean(dados$y), sd = sd(dados$y)),
+                col="red", size=3)
+print(v1)
+
+v2<- ggplot(dados, aes(x,y))+geom_point()+geom_smooth(se=FALSE, method="lm")
+
+v3<- ggplot(dados, aes(t,y))+geom_point()+geom_smooth(method = lm, formula = y ~ splines::ns(x, 3), se = FALSE)
+
+grid.arrange(v2,v3,ncol=2)
+```
+
+# Second Application
+```{r}
+rm(list=ls())
+dadosNA<- read_excel("Davis.xlsx", col_types = c("text", "numeric", "numeric", "numeric", "numeric"))
+#dadosNA<- read.csv("Davis.csv")
+summary(dadosNA)
+table(dadosNA$sex)
+
+dados<- na.omit(dadosNA)
+dim(dados)
+table(dados$sex)
+summary(dados)
+
+#head(dados)
+
+q1<- mean(dados$weight)-3*sd(dados$weight)
+q2<- mean(dados$weight)+3*sd(dados$weight)
+v1<-ggplot(dados, aes(x = weight)) + 
+    geom_histogram(aes(y =..density..),
+    bins = 10,colour = "black", fill = "white") +
+  xlim(c(q1,q2))+
+  stat_function(fun = dnorm, args = list(mean = mean(dados$weight), sd = sd(dados$weight)),
+                col="red", size=3)
+print(v1)
+
+v2<- ggplot(dados, aes(height,weight))+geom_point()+geom_smooth(se=FALSE)
+
+v3<- ggplot(dados, aes(repwt,weight))+geom_point()+geom_smooth(se=FALSE)
+
+v4<- ggplot(dados, aes(repht,weight))+geom_point()+geom_smooth(se=FALSE)
+
+v5<- ggplot(dados, aes(sex,height))+geom_boxplot()+geom_smooth(se=FALSE)
+
+grid.arrange(v2,v3,v4,v5)
+```
+
+```{r, eval=FALSE}
+hist(dados$weight, probability = TRUE)
+curve(dnorm(x,mean(dados$weight),sd(dados$weight)),add=TRUE)
+
+plot(dados$weight~dados$height, pch=20)
+lines(smooth.spline(dados$weight~dados$height), 
+      col = "red", lwd=3)
+
+plot(dados$weight~dados$repwt, pch=20)
+lines(smooth.spline(dados$weight~dados$repwt), 
+      col = "red", lwd=3)
+
+plot(dados$weight~dados$repht,pch=20)
+lines(smooth.spline(dados$weight~dados$repht), 
+      col = "red", lwd=3)
+boxplot(dados$weight~dados$sex)
+
+```
