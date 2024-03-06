@@ -11,9 +11,10 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE)
 ```
 
+
 ```{r}
 rm(list=ls())
-load("~/tesis_R/Aplicacion_thomas_javier_log_iga.RData")
+load("Aplicacion_thomas_javier_log_iga.RData")
 library(ggplot2)
 library(gridExtra)
 library(gamlss)
@@ -22,7 +23,7 @@ y <- y_
 
 
 v1 <- ggplot(dados, aes(x = y_)) +  # Agrega aes() alrededor de y_
-  geom_histogram(bins = 11, aes(y = ..density..), fill = "steelblue") +
+  geom_histogram(bins = 15, aes(y = ..density..), fill = "steelblue") +
   theme(
     axis.text.x = element_text(size = 16, face = "plain"),
     axis.text.y = element_text(size = 16, face = "plain"),
@@ -35,8 +36,7 @@ v1 <- ggplot(dados, aes(x = y_)) +  # Agrega aes() alrededor de y_
     col = "black",
     size = 1
   ) +
-  xlim(c(3, 11)) +
-  xlab("Log IGG")
+  xlab("Log IGA")
 
 
 v1
