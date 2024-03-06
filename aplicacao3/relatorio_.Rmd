@@ -2,7 +2,9 @@
 title: "Informe"
 author: "Javier Savedra - Thomas Gonzalez"
 date: "2024-03-01"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -14,16 +16,18 @@ knitr::opts_chunk$set(echo = TRUE,
 
 ```{r}
 rm(list=ls())
-load("Aplicacion_thomas_javier_log_iga.RData")
+#load("Aplicacion_thomas_javier_log_iga.RData")
+load("~/tesis_R/Aplicacion_thomas_javier_log_iga.RData")
 library(ggplot2)
 library(gridExtra)
 library(gamlss)
+
 dados <- datos
 y <- y_
 
 
 v1 <- ggplot(dados, aes(x = y_)) +  # Agrega aes() alrededor de y_
-  geom_histogram(bins = 15, aes(y = ..density..), fill = "steelblue") +
+  geom_histogram(bins = 9, aes(y = ..density..), fill = "steelblue") +
   theme(
     axis.text.x = element_text(size = 16, face = "plain"),
     axis.text.y = element_text(size = 16, face = "plain"),
@@ -36,6 +40,7 @@ v1 <- ggplot(dados, aes(x = y_)) +  # Agrega aes() alrededor de y_
     col = "black",
     size = 1
   ) +
+  xlim(6,16) +
   xlab("Log IGA")
 
 
@@ -51,9 +56,10 @@ v2 <- ggplot(dados, aes(x2, y_)) +
   )+
   xlab("Categoria Vacuna")
 
+# Grafico suavizado para IMC (v3)
 v3 <- ggplot(dados, aes(x1, y_)) +
   geom_point(size = 3) +
-  geom_smooth(se = FALSE, aes(group = 1), col = "red", size = 2) +  # Agrega aes(group = 1)
+  geom_smooth(se = FALSE, method = "loess", col = "red", size = 2) + 
   theme(
     axis.text.x = element_text(size = 16, face = "plain"),
     axis.text.y = element_text(size = 16, face = "plain"),  
@@ -62,9 +68,10 @@ v3 <- ggplot(dados, aes(x1, y_)) +
   ) +
   xlab("IMC")
 
+# Grafico suavizado para Log Neutra (v4)
 v4 <- ggplot(dados, aes(x3, y_)) +
   geom_point(size = 3) +
-  geom_smooth(se = FALSE, aes(group = 1), col = "red", size = 2) +  # Agrega aes(group = 1)
+  geom_smooth(se = FALSE, method = "loess", col = "red", size = 2) + 
   theme(
     axis.text.x = element_text(size = 16, face = "plain"),
     axis.text.y = element_text(size = 16, face = "plain"),  
@@ -73,9 +80,10 @@ v4 <- ggplot(dados, aes(x3, y_)) +
   ) +
   xlab("Log Neutra")
 
+# Grafico suavizado para Edad (v5)
 v5 <- ggplot(dados, aes(x4, y_)) +
   geom_point(size = 3) +
-  geom_smooth(se = FALSE, col = "red", size = 2, method = "lm") +
+  geom_smooth(se = FALSE, method = "loess", col = "red", size = 2) +
   theme(
     axis.text.x = element_text(size = 16, face = "plain"),
     axis.text.y = element_text(size = 16, face = "plain"),  
@@ -83,8 +91,41 @@ v5 <- ggplot(dados, aes(x4, y_)) +
     axis.title.y = element_text(size = 20, face = "plain")
   ) +
   xlab("Edad")
+v6 <- ggplot(dados, aes(x5, y_)) +
+  geom_boxplot(fill = "steelblue") +
+  theme(
+    axis.text.x = element_text(size = 16, face = "plain"),
+    axis.text.y = element_text(size = 16, face = "plain"),  
+    axis.title.x = element_text(size = 20, face = "plain"),
+    axis.title.y = element_text(size = 20, face = "plain")
+  )+
+  xlab("Sexo")
 
 grid.arrange(v2, v3, v5, v4)
+
+v6
+
+# Calcular la matriz de correlación
+correlation_matrix_log_iga <- cor(dados1[, c("log_iga", "imc", "edad", "log_neutra")])
+
+# Convertir la matriz de correlación en un dataframe
+correlation_df <- as.data.frame(correlation_matrix_log_iga)
+correlation_df$variable1 <- rownames(correlation_matrix_log_iga)
+correlation_df <- tidyr::gather(correlation_df, variable2, value, -variable1)
+
+# Crear un gráfico de heatmap para la matriz de correlación
+heatmap_plot_log_iga <- ggplot(data = correlation_df, aes(variable1, variable2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, limit = c(-1,1), space = "Lab", name="Correlation") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 16, face = "plain"),
+        axis.text.y = element_text(size = 16, face = "plain"),
+        axis.title.x = element_text(size = 20, face = "plain"),
+        axis.title.y = element_text(size = 20, face = "plain")) +
+  labs(x = "Variables", y = "Variables", title = "Matriz de Correlación (log Iga vs. x1, x3, x4)")
+
+
+heatmap_plot_log_iga
 
 
 
