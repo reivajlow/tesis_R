@@ -10,6 +10,12 @@ y_ <- log_iga
 # eliminar na
 hist(y_)#sim?trica com valores at?picos na calda esquerda
 summary(y_)#? sim?trica, pois mediana pr?ximo da m?dia
+
+cat_vacuna <- as.factor(cat_vacuna)
+table(cat_vacuna)
+
+levels(cat_vacuna) <- c("pfizer","coronavac")
+
 x1 <- imc
 x2 <- as.factor(cat_vacuna)
 x3 <- log_neutra
@@ -33,7 +39,7 @@ length(y_)
 library(gamlss)
 
 #______________Normal_________________________
-Normal_identidade<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+Normal_identidade<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                            family=NO(mu.link = identity,sigma.link = log),
                            data=dados1,n.cyc=1000, trace=TRUE)
 
