@@ -13,11 +13,10 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE)
 ```
 
-
 ```{r}
 rm(list=ls())
-#load("Aplicacion_thomas_javier_log_iga.RData")
-load("~/tesis_R/Aplicacion_thomas_javier_log_iga.RData")
+load("Aplicacion_thomas_javier_log_iga.RData")
+#load("~/tesis_R/Aplicacion_thomas_javier_log_iga.RData")
 library(ggplot2)
 library(gridExtra)
 library(gamlss)
@@ -101,8 +100,13 @@ v6 <- ggplot(dados, aes(x5, y_)) +
   )+
   xlab("Sexo")
 
+
 grid.arrange(v2, v3, v5, v4,v6)
 
+```
+
+
+```{r}
 
 # Calcular la matriz de correlación
 correlation_matrix_log_iga <- cor(dados1[, c("log_iga", "imc", "edad", "log_neutra")])
@@ -126,7 +130,9 @@ heatmap_plot_log_iga <- ggplot(data = correlation_df, aes(variable1, variable2, 
 
 heatmap_plot_log_iga
 
+```
 
+```{r}
 
 GAIC(Normal_identidade,
      tStudent_identidade,
@@ -203,4 +209,3 @@ legend("topleft", c(paste("Total points:", n),
        bty="n", cex=1.2)
 
 ```
-
