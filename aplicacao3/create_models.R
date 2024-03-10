@@ -44,13 +44,13 @@ Normal_identidade<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                            data=dados1,n.cyc=1000, trace=TRUE)
 
 #_____________t_Student_______________________
-tStudent_identidade<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+tStudent_identidade<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                              family=TF(mu.link = identity,sigma.link = log),
                              data=dados1,n.cyc=1000, trace=TRUE)
 
 
 #______________Exponencial pot?ncia___________
-Exponencial_potencia_identidade<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+Exponencial_potencia_identidade<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                                          family=PE(mu.link = identity,sigma.link = log),
                                          sigma.start=1,data=dados1,n.cyc=10000, trace=TRUE)
 
@@ -59,12 +59,12 @@ Exponencial_potencia_identidade<- gamlss(y_~x1+x2+x3+x5+cs(x4),
 #___Fun??o de liga??o inversa na posi??o (mu)
 
 #____________Normal__________________________
-Normal_inversa<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+Normal_inversa<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                         family=NO(mu.link = inverse,sigma.link = log),
                         data=dados1,n.cyc=1000, trace=TRUE)
 
 #___________t-Student________________________
-tStudent_inversa<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+tStudent_inversa<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                           family=TF(mu.link = inverse,sigma.link = log),
                           data=dados1,n.cyc=1000, trace=TRUE)
 
@@ -73,7 +73,7 @@ paste("lambda=",round(getSmo(tStudent_inversa)$lambda1,4))
 paste("df=",round(sum(getSmo(tStudent_inversa)$lev),4))#df ? s?o os graus de liberdade efetivos, ou seja, o grau do polin?mio de cada parti??o da curva
 
 #___________Exponencial pot?ncia_____________
-Exponencial_potencia_inversa<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+Exponencial_potencia_inversa<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                                       family=PE(mu.link = inverse,sigma.link = log),
                                       sigma.start=1,data=dados1,n.cyc=1000,trace=TRUE)
 
@@ -81,19 +81,19 @@ Exponencial_potencia_inversa<- gamlss(y_~x1+x2+x3+x5+cs(x4),
 #___Fun??o de liga??o log na posi??o (mu)
 
 #____________Normal__________________________
-Normal_log<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+Normal_log<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                     family=NO(mu.link = log,sigma.link = log),
                     data=dados1,n.cyc=1000, trace=TRUE)
 
 
 #___________t-Student________________________
-tStudent_log<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+tStudent_log<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                       family=TF(mu.link = log,sigma.link = log),
                       data=dados1,n.cyc=1000, trace=TRUE)
 
 
 #___________Exponencial pot?ncia_____________
-Exponencial_potencia_log<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+Exponencial_potencia_log<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                                   family=PE(mu.link = log,sigma.link = log),
                                   data=dados1,n.cyc=1000,trace=TRUE)
 
@@ -101,18 +101,18 @@ Exponencial_potencia_log<- gamlss(y_~x1+x2+x3+x5+cs(x4),
 #___Fun??o de liga??o squt na posi??o (mu)
 
 #____________Normal__________________________
-Normal_sqrt<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+Normal_sqrt<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                      family=NO(mu.link = "sqrt",sigma.link = log),
                      data=dados1,n.cyc=1000, trace=TRUE)
 
 #___________t-Student________________________
-tStudent_sqrt<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+tStudent_sqrt<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                        family=TF(mu.link = "sqrt",sigma.link = log),
                        data=dados1,n.cyc=1000, trace=TRUE)
 
 
 #___________Exponencial pot?ncia_____________
-Exponencial_potencia_sqrt<- gamlss(y_~x1+x2+x3+x5+cs(x4),
+Exponencial_potencia_sqrt<- gamlss(y_~x2+x5+cs(x1+x3+x4),
                                    family=PE(mu.link ="sqrt",sigma.link = log),
                                    sigma.start=1,data=dados1,n.cyc=1000,trace=TRUE)
 
@@ -195,7 +195,7 @@ while (j < B + 1) {
   simula <- rTF(n, fitted(tStudent_inversa))
   
   # Intenta ajustar el modelo, captura cualquier error
-  m1s <- try(gamlss(simula ~ x1 + x2 + x3 + cs(x4),
+  m1s <- try(gamlss(simula ~ x2+x5+cs(x1+x3+x4),
                     family = TF(mu.link = inverse, sigma.link = log),
                     data = dados1, n.cyc = 1000, trace = TRUE), silent = TRUE)
   
