@@ -1,0 +1,130 @@
+---
+title: "Untitled"
+author: "javier saavedra"
+date: "2024-03-10"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, eval=FALSE, echo=FALSE}
+# Distribuicao normal ligacao identidade n=30
+rm(list=ls())
+load("Normal_ide_n30_N2000.RData")
+ 
+vies_beta1.Normal <- beta1.Normal-beta1
+vies_beta2.Normal <- beta2.Normal-beta2
+
+EQM_beta1.Normal <- (vies_beta1.Normal)^2
+EQM_beta2.Normal <- (vies_beta2.Normal)^2
+
+
+vect_media.Normal<-round(c(mean(beta1.Normal),
+                           mean(beta2.Normal)),5)
+vect_bias.Normal<-round(c(mean(vies_beta1.Normal),
+                          mean(vies_beta2.Normal)),5)
+vect_eqm.Normal <-round(c(mean(EQM_beta1.Normal),
+                          mean(EQM_beta2.Normal)),5)
+
+cbind(real=c(beta1,beta2),vect_media.Normal,vect_bias.Normal,vect_eqm.Normal)
+
+
+#Graficos de interesse
+plot(smooth.spline(X[,1],(fitedds.Normal[,1])),
+     type="l",col="firebrick",lwd=4,
+     xlim=c(0,5),ylim=c(0,12),xlab="t3",
+     ylab="Fitted term for t3",main="", cex.lab=1.2)
+for(i in 2:N){
+  lines(smooth.spline(X[,i],(fitedds.Normal[,i])),
+        type="l",col="firebrick",lwd=4)
+}
+curve((sin(x))^2+5,col="gray83",lwd=4,
+      xlim=c(0,5),ylim=c(0,12),add=T)
+legend("topleft",lty=c(1,1),lwd=c(3,3),
+       c("True","Normal"),col=c("gray83","firebrick"),
+       bty="n",cex=1.2)
+#NOVO
+XX<- YY<- matrix(0, n, N)
+for (i in 1:N){
+  ajuste<- smooth.spline(X[,i],(fitedds.Normal[,i]))
+  XX[,i]<- ajuste$x
+  YY[,i]<- ajuste$y
+}
+
+cv.x<- seq(0,5,length.out = n)#cv.x<- apply(XX,1,mean)
+cv.y<- apply(YY,1,mean)
+
+#png('Normal_ide_n30_N2000.png')
+plot(cv.x,cv.y,type="l",xlim=c(0,5),ylim=c(0,12),
+     col="red", lwd=4,xlab="t3",
+     ylab="Fitted term for t3",main="", cex.lab=1.2)
+curve((sin(x))^2+5,col="blue",lwd=4,
+      xlim=c(0,5),ylim=c(0,12),add=T)
+legend("topleft",lty=c(1,1),lwd=c(3,3),
+       c("True","Normal"),col=c("blue","red"),
+       bty="n",cex=1.2)
+#dev.off()
+```
+
+
+
+```{r, eval=FALSE, echo=FALSE}
+# Distribuicao normal ligacao identidade n=30
+rm(list=ls())
+load("Normal_ide_n30_N2000.RData")
+ 
+vies_beta1.Normal <- beta1.Normal-beta1
+vies_beta2.Normal <- beta2.Normal-beta2
+
+EQM_beta1.Normal <- (vies_beta1.Normal)^2
+EQM_beta2.Normal <- (vies_beta2.Normal)^2
+
+
+vect_media.Normal<-round(c(mean(beta1.Normal),
+                           mean(beta2.Normal)),5)
+vect_bias.Normal<-round(c(mean(vies_beta1.Normal),
+                          mean(vies_beta2.Normal)),5)
+vect_eqm.Normal <-round(c(mean(EQM_beta1.Normal),
+                          mean(EQM_beta2.Normal)),5)
+
+cbind(real=c(beta1,beta2),vect_media.Normal,vect_bias.Normal,vect_eqm.Normal)
+
+
+#Graficos de interesse
+plot(smooth.spline(X[,1],(fitedds.Normal[,1])),
+     type="l",col="firebrick",lwd=4,
+     xlim=c(0,5),ylim=c(0,12),xlab="t3",
+     ylab="Fitted term for t3",main="", cex.lab=1.2)
+for(i in 2:N){
+  lines(smooth.spline(X[,i],(fitedds.Normal[,i])),
+        type="l",col="firebrick",lwd=4)
+}
+curve((sin(x))^2+5,col="gray83",lwd=4,
+      xlim=c(0,5),ylim=c(0,12),add=T)
+legend("topleft",lty=c(1,1),lwd=c(3,3),
+       c("True","Normal"),col=c("gray83","firebrick"),
+       bty="n",cex=1.2)
+#NOVO
+XX<- YY<- matrix(0, n, N)
+for (i in 1:N){
+  ajuste<- smooth.spline(X[,i],(fitedds.Normal[,i]))
+  XX[,i]<- ajuste$x
+  YY[,i]<- ajuste$y
+}
+
+cv.x<- seq(0,5,length.out = n)#cv.x<- apply(XX,1,mean)
+cv.y<- apply(YY,1,mean)
+
+#png('Normal_ide_n30_N2000.png')
+plot(cv.x,cv.y,type="l",xlim=c(0,5),ylim=c(0,12),
+     col="red", lwd=4,xlab="t3",
+     ylab="Fitted term for t3",main="", cex.lab=1.2)
+curve((sin(x))^2+5,col="blue",lwd=4,
+      xlim=c(0,5),ylim=c(0,12),add=T)
+legend("topleft",lty=c(1,1),lwd=c(3,3),
+       c("True","Normal"),col=c("blue","red"),
+       bty="n",cex=1.2)
+#dev.off()
+```
