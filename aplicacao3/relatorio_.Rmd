@@ -101,9 +101,8 @@ v6 <- ggplot(dados, aes(x5, y_)) +
   )+
   xlab("Sexo")
 
-grid.arrange(v2, v3, v5, v4)
+grid.arrange(v2, v3, v5, v4,v6)
 
-v6
 
 # Calcular la matriz de correlación
 correlation_matrix_log_iga <- cor(dados1[, c("log_iga", "imc", "edad", "log_neutra")])
@@ -142,16 +141,16 @@ GAIC(Normal_identidade,
      tStudent_sqrt,
      Exponencial_potencia_sqrt)
 
-wp(tStudent_inversa,ylim.all = 3)
+wp(tStudent_identidade,ylim.all = 3)
 
-summary(tStudent_inversa)
+summary(tStudent_identidade)
 
-exp(tStudent_inversa$nu.coefficients)
+exp(tStudent_identidade$nu.coefficients)
 
 #x11()
-term.plot(tStudent_inversa, 
+term.plot(tStudent_identidade, 
           what = c("mu"),
-          terms = 4,main="",
+          terms = 3,main="",
           col.shaded="royalblue",
           col.term = "gray83",
           xlabs="Sexo",col.se="black",
@@ -167,7 +166,7 @@ term.plot(tStudent_inversa,
 plot(x4,y_,pch=19,main="",col="royalblue4",
      xlab="Measured height",
      ylab="Measured weight")
-lines(smooth.spline(x4,fitted(tStudent_inversa)),
+lines(smooth.spline(x4,fitted(tStudent_identidade)),
      type="l",col="red",lwd=4)
 
 #____________________________________________________________
@@ -176,7 +175,7 @@ lines(smooth.spline(x4,fitted(tStudent_inversa)),
 #ajustou-se bem aos dados
 
 #_______Gr?fico dos res?duos vs indices 
-Res.q2 <- tStudent_inversa$residuals
+Res.q2 <- tStudent_identidade$residuals
 Res.qo2 <- sort(abs(Res.q2))
 
 index <- 1:length(dados1$log_iga)
